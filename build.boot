@@ -7,9 +7,9 @@
                   [ancient-clj "0.3.9"]])
 
 (require
-  '[boot-update-deps.app :as app])
+  '[boot-syu.task :as task])
 
 (deftask test
   "Test app task."
   []
-  (app/update-deps))
+  (task/syu :all true))

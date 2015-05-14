@@ -1,7 +1,6 @@
-(ns boot-update-deps.app
-  (:require [clojure.java.io :as io]
-            [clojure.string :as str]
-            [boot.core :as boot :refer [deftask set-env!]]
+(ns boot-syu.core
+  (:require [clojure.string :as str]
+            [boot.core :as boot]
             [ancient-clj.core :as ancient]))
 
 (defn get-latest-deps [deps opts]
@@ -24,14 +23,3 @@
    (let [deps (:dependencies (boot/get-env))
          latest-deps (get-latest-deps deps opts)]
      (replace-deps deps latest-deps))))
-
-(deftask update-deps
-  "Update all project dependencies."
-  [s snapshots bool "include SNAPSHOT versions"
-   q qualified bool "include alpha, beta, etc... versions"
-   a all       bool "include snapshots and qualified versions"]
-  (boot/with-pre-wrap fileset
-    (let [opts {:snapshots? (or snapshots all)
-                :qualified? (or qualified all)}]
-      (syu opts))
-    fileset))
