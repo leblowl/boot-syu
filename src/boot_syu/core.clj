@@ -3,23 +3,27 @@
             [boot.core :as boot]
             [ancient-clj.core :as ancient]))
 
-(defn get-latest-deps [deps opts]
-  (let [get-latest-version #(ancient/artifact-outdated-string? % opts)
-        artifacts (map ancient/read-artifact deps)
-        latest-versions (remove nil? (map get-latest-version artifacts))]
-    (map vector (map first deps) latest-versions)))
+(defn latest-version [dep opts]
+  (let [artifact (ancient/read-artifact dep)]
+    (or (ancient/latest-version-string! artifact opts)
+        (second dep))))
+
+(defn latest-dep [dep opts]
+  [(first dep) (latest-version dep opts)])
+
+(defn latest-deps [deps opts]
+  (map #(latest-dep % opts) deps))
 
 (defn replace-deps [deps latest-deps]
   (let [f "build.boot"
-        dep-strs (map str deps)
-        latest-dep-strs (map str latest-deps)
-        replacements (map vector dep-strs latest-dep-strs)]
-    (spit f (reduce #(apply str/replace %1 %2) (slurp f) replacements))))
+        replacements (map vector (map str deps) (map str latest-deps))
+        replace-dep #(apply str/replace %1 %2)]
+    (spit f (reduce replace-dep (slurp f) replacements))))
 
 (defn syu
   ([]
    (syu {:snapshots? false :qualified? false}))
   ([opts]
    (let [deps (:dependencies (boot/get-env))
-         latest-deps (get-latest-deps deps opts)]
-     (replace-deps deps latest-deps))))
+         latest (latest-deps deps opts)]
+     (replace-deps deps latest))))
