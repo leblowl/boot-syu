@@ -6,6 +6,7 @@ This is a tool for updating the dependency list in a project's build.boot file. 
 ## Usage
 1) In your build.boot file, include boot-syu as a project dependency and require it:
    ```clojure
+   (set-env! :dependencies '[[boot-syu "X.Y.Z"]])
    (require '[boot-syu.task :refer :all])
    ```
 2) Now you can call ```boot syu [-q | -s | -a]``` from the command line in the project directory or use the syu task directly from within your build.boot file.
